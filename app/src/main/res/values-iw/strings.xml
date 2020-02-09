@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">חממה</string>
+    <string name="inspector">מפקח</string>
+    <string name="farm_select">בחר את המשק שאתה בו עכשיו:</string>
+    <string name="no_farm">שום משק</string>
+</resources>
