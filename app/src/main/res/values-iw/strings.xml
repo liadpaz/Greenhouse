@@ -4,4 +4,11 @@
     <string name="inspector">מפקח</string>
     <string name="farm_select">בחר את המשק שאתה בו עכשיו:</string>
     <string name="no_farm">שום משק</string>
+    <string name="cant_do_this_now">אי אפשר לעשות את זה כרגע</string>
+    <string name="logout">התנתק</string>
+    <string name="logout_successful">התנתקת בהצלחה</string>
+    <string name="greenhouse_id">מספר מזהה של החממה:</string>
+    <string name="greenhouse_height">אורך חממה:</string>
+    <string name="greenhouse_width">רוחב חממה:</string>
+    <string name="select">בחר</string>
 </resources>

@@ -7,4 +7,11 @@
     <string name="continue_farm_id" translatable="false">Continue</string>
     <string name="no_farm">No Farm</string>
     <string name="farm_id_not_found" translatable="false">Couldn\'t find a farm with this ID...</string>
+    <string name="cant_do_this_now">Can\'t do this right now</string>
+    <string name="logout">Logout</string>
+    <string name="logout_successful">Successfully logged out</string>
+    <string name="greenhouse_id">Greenhouse Id:</string>
+    <string name="greenhouse_width">Greenhouse Width:</string>
+    <string name="greenhouse_height">Greenhouse Height:</string>
+    <string name="select">Select</string>
 </resources>
