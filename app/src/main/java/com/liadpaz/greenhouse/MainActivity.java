@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 if (farms.size() > 2) {
                     new FarmSelectDialog(MainActivity.this, farms).show();
                 } else {
-                    startActivity(new Intent(MainActivity.this, GreenhouseSelectorActivity.class).putExtra("Farm", firstKey));
+                    startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra("Farm", firstKey));
                 }
                 inTask.set(false);
             }

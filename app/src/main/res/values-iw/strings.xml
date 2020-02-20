@@ -11,4 +11,6 @@
     <string name="greenhouse_height">אורך חממה:</string>
     <string name="greenhouse_width">רוחב חממה:</string>
     <string name="select">בחר</string>
+    <string name="greenhouse_select">תבחר חממה:</string>
+    <string name="no_greenhouse">שום חממה</string>
 </resources>

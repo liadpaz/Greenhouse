@@ -1,5 +1,6 @@
 package com.liadpaz.greenhouse;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -15,7 +16,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class GreenhouseSelectorActivity extends AppCompatActivity {
+public class GreenhouseSelectActivity extends AppCompatActivity {
+
+    private ArrayList<Greenhouse> greenhouses = new ArrayList<>();
 
     private volatile AtomicBoolean inTask = new AtomicBoolean(true);
 
@@ -32,25 +35,29 @@ public class GreenhouseSelectorActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_select_greenhouse).setOnClickListener(v -> {
             if (!inTask.get()) {
-
-                // TODO: imlement select greenhouse
-
+                if (greenhouses.size() == 1) {
+                    startActivity(new Intent(GreenhouseSelectActivity.this, MainActivity.class).putExtra("Greenhouse", greenhouses.get(0).Id));
+                    // TODO: implement the bug/greenhouse activity
+                } else {
+                    new GreenhouseSelectDialog(GreenhouseSelectActivity.this, greenhouses).show();
+                }
             } else {
-                Toast.makeText(GreenhouseSelectorActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+                Toast.makeText(GreenhouseSelectActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
             }
         });
 
-        lv_greenhouses.setAdapter(new GreenhousesAdapter(GreenhouseSelectorActivity.this, R.layout.layout_greenhouse_item, new ArrayList<>()));
+        lv_greenhouses.setAdapter(new GreenhousesAdapter(GreenhouseSelectActivity.this, R.layout.layout_greenhouse_item, new ArrayList<>()));
 
         Utilities.setReferences(farm);
-
         Utilities.getGreenhousesRef().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 inTask.set(true);
+                greenhouses.clear();
                 ((GreenhousesAdapter) lv_greenhouses.getAdapter()).clear();
                 for (DataSnapshot greenhouse : dataSnapshot.getChildren()) {
-                    ((GreenhousesAdapter) lv_greenhouses.getAdapter()).add(Objects.requireNonNull(greenhouse.getValue(Greenhouse.class)));
+                    greenhouses.add(greenhouse.getValue(Greenhouse.class));
+                    ((GreenhousesAdapter) lv_greenhouses.getAdapter()).add(greenhouse.getValue(Greenhouse.class));
                 }
                 inTask.set(false);
             }

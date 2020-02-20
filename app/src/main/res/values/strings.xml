@@ -14,4 +14,6 @@
     <string name="greenhouse_width">Greenhouse Width:</string>
     <string name="greenhouse_height">Greenhouse Height:</string>
     <string name="select">Select</string>
+    <string name="greenhouse_select">Select Greenhouse:</string>
+    <string name="no_greenhouse">No Greenhouse</string>
 </resources>

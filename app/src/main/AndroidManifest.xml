@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".GreenhouseSelectorActivity"
+            android:name=".GreenhouseSelectActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" >
         </activity>

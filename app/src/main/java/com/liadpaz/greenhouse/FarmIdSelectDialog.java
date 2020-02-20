@@ -28,7 +28,7 @@ class FarmIdSelectDialog extends Dialog {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot farm : dataSnapshot.getChildren()) {
                     if (Objects.equals(et_farm_id.getText().toString(), Objects.requireNonNull(farm.getKey()).substring(0, 5))) {
-                        activity.startActivity(new Intent(activity, GreenhouseSelectorActivity.class).putExtra("Farm", farm.getKey()));
+                        activity.startActivity(new Intent(activity, GreenhouseSelectActivity.class).putExtra("Farm", farm.getKey()));
                         dismiss();
                         return;
                     }
