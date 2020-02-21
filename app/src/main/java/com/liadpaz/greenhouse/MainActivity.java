@@ -83,12 +83,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_main_logout) {
-            AuthUI.getInstance().signOut(MainActivity.this).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    item.setVisible(false);
-                    Toast.makeText(MainActivity.this, R.string.logout_successful, Toast.LENGTH_LONG).show();
-                }
-            });
+            if (!inTask.get()) {
+                AuthUI.getInstance().signOut(MainActivity.this).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        item.setVisible(false);
+                        Toast.makeText(MainActivity.this, R.string.logout_successful, Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -98,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
      * This function iterates over all the user's farms and if there are more than one, shows a select dialog
      */
     private void checkFarms() {
+        inTask.set(true);
         HashMap<String, String> farms = new HashMap<>();
         farms.put(getString(R.string.no_farm), "");
-        inTask.set(true);
         userRef.child("Farms").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

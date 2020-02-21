@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_width_title"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_height_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_greenhouse_id_title" />
@@ -19,25 +20,20 @@
         android:id="@+id/tv_greenhouse_width"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.2"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_greenhouse_width_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_greenhouse_height"
+        app:layout_constraintTop_toTopOf="@+id/tv_greenhouse_width_title" />
 
     <TextView
         android:id="@+id/tv_greenhouse_height"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias=".8"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginStart="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_greenhouse_height_title"
+        app:layout_constraintStart_toEndOf="@+id/tv_greenhouse_height_title"
+        app:layout_constraintTop_toTopOf="@+id/tv_greenhouse_height_title" />
 
     <TextView
         android:id="@+id/tv_greenhouse_id_title"
@@ -54,23 +50,47 @@
         android:id="@+id/tv_greenhouse_width_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:text="@string/greenhouse_width"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_width"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tv_greenhouse_height_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:text="@string/greenhouse_height"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_height"
+        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_width_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.8"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_greenhouse_bugs_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/greenhouse_bugs"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/tv_greenhouse_width_title"
+        app:layout_constraintEnd_toStartOf="@+id/tv_greenhouse_bugs"
+        app:layout_constraintTop_toBottomOf="@+id/tv_greenhouse_height_title"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/tv_greenhouse_bugs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_greenhouse_bugs_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_greenhouse_bugs_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

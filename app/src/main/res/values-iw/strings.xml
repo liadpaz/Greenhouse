@@ -13,4 +13,7 @@
     <string name="select">בחר</string>
     <string name="greenhouse_select">תבחר חממה:</string>
     <string name="no_greenhouse">שום חממה</string>
+    <string name="bug_add">הוסך חרק חדש</string>
+    <string name="bug_remove_last">הסר את החרק האחרון</string>
+    <string name="greenhouse_bugs">חרקים בחממה:</string>
 </resources>

@@ -16,4 +16,7 @@
     <string name="select">Select</string>
     <string name="greenhouse_select">Select Greenhouse:</string>
     <string name="no_greenhouse">No Greenhouse</string>
+    <string name="bug_add">Add new bug</string>
+    <string name="bug_remove_last">Remove last bug</string>
+    <string name="greenhouse_bugs">Bugs in greenhouse:</string>
 </resources>
