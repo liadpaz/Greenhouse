@@ -23,7 +23,6 @@ class GreenhousesAdapter extends BaseAdapter {
 
     GreenhousesAdapter(@NonNull Activity activity, @NonNull ArrayList<Greenhouse> greenhouses, @NonNull HashMap<String, Integer> bugs) {
         super();
-        //(activity, R.layout.layout_greenhouse_item, greenhouses);
 
         this.activity = activity;
         this.greenhouses = greenhouses;
@@ -61,8 +60,8 @@ class GreenhousesAdapter extends BaseAdapter {
         Greenhouse greenhouse = greenhouses.get(position);
 
         viewHolder.tv_greenhouse_id.setText(greenhouse.Id);
-        viewHolder.tv_greenhouse_width.setText(greenhouse.Width);
-        viewHolder.tv_greenhouse_height.setText(greenhouse.Height);
+        viewHolder.tv_greenhouse_width.setText(String.valueOf(greenhouse.Width));
+        viewHolder.tv_greenhouse_height.setText(String.valueOf(greenhouse.Height));
         Integer numBugs = bugs.get(greenhouses.get(position).Id);
         viewHolder.tv_greenhouse_bugs.setText(numBugs != null ? numBugs.toString() : "0");
 

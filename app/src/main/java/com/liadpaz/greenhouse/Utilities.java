@@ -11,6 +11,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 class Utilities {
@@ -90,16 +91,44 @@ class DateParser {
 class Greenhouse implements Serializable {
 
     public String Id;
-    public String Width;
-    public String Height;
+    public int Width;
+    public int Height;
+    public ArrayList<GreenhousePath> Paths;
 
-    public Greenhouse(String id, String width, String height) {
+    public Greenhouse(String id, int width, int height, ArrayList<GreenhousePath> paths) {
         this.Id = id;
         this.Width = width;
         this.Height = height;
+        this.Paths = paths;
     }
 
     public Greenhouse() {
+    }
+}
+
+@Keep
+@SuppressWarnings({"unused", "WeakerAccess"})
+class GreenhousePath implements Serializable {
+    public Block Path;
+    public int X;
+    public int Y;
+    public int Width;
+    public int Height;
+
+    public GreenhousePath(Block path, int x, int y, int width, int height) {
+        Path = path;
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+    }
+
+    public GreenhousePath() {
+    }
+
+    enum Block {
+        Entrance,
+        Road
     }
 }
 

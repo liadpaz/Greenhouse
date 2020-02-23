@@ -73,8 +73,8 @@ public class GreenhouseActivity extends AppCompatActivity {
     private void addBug(Bug bug) {
         double width = getResources().getDisplayMetrics().widthPixels;
 
-        double x = (width / Double.parseDouble(greenhouse.Width) * bug.X) - 5;
-        double y = width - (width / Double.parseDouble(greenhouse.Height) * bug.Y) - 5;
+        double x = (width / greenhouse.Width * bug.X) - 5;
+        double y = width - (width / greenhouse.Height * bug.Y) - 5;
 
         CircleView circleView = new CircleView(x, y, 5);
 
