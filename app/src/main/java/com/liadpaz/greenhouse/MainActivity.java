@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.liadpaz.greenhouse.databinding.ActivityMainBinding;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,11 +37,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setSupportActionBar(findViewById(R.id.toolbar_main));
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.toolbarMain);
 
         auth = FirebaseAuth.getInstance();
-        findViewById(R.id.btn_main_inspector).setOnClickListener((v) -> {
+        binding.btnMainInspector.setOnClickListener((v) -> {
             if (!inTask.get()) {
                 if (auth.getCurrentUser() == null) {
                     startActivityForResult(AuthUI.getInstance()
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
             }
         });
-        findViewById(R.id.btn_main_spray).setOnClickListener((v -> {
+        binding.btnMainSpray.setOnClickListener((v -> {
             Utilities.setRole(MainActivity.this);
             new FarmIdSelectDialog(MainActivity.this).show();
         }));

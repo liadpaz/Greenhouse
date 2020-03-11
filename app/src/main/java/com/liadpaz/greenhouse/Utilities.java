@@ -74,16 +74,7 @@ class Utilities {
 
 @SuppressLint("SimpleDateFormat")
 class DateParser {
-
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss.SSSSSSSX");
-
-    static Date parseDate(String date) {
-        try {
-            return dateFormat.parse(date);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
 }
 
 @Keep
@@ -136,13 +127,11 @@ class GreenhousePath implements Serializable {
 @SuppressWarnings({"unused", "WeakerAccess"})
 class Bug {
 
-    public String Greenhouse;
     public String Time;
     public double X;
     public double Y;
 
-    public Bug(String greenhouse, Date time, double x, double y) {
-        this.Greenhouse = greenhouse;
+    public Bug(Date time, double x, double y) {
         this.Time = DateParser.dateFormat.format(time);
         this.X = x;
         this.Y = y;

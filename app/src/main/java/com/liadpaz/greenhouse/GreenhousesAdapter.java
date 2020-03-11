@@ -1,32 +1,32 @@
 package com.liadpaz.greenhouse;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.liadpaz.greenhouse.databinding.LayoutGreenhouseItemBinding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 class GreenhousesAdapter extends BaseAdapter {
 
+    private static final String TAG = "GREENHOUSE_ADAPTER";
     private Activity activity;
     private ArrayList<Greenhouse> greenhouses;
     private HashMap<String, Integer> bugs;
 
-    GreenhousesAdapter(@NonNull Activity activity, @NonNull ArrayList<Greenhouse> greenhouses, @NonNull HashMap<String, Integer> bugs) {
+    GreenhousesAdapter(@NonNull Activity activity) {
         super();
 
         this.activity = activity;
-        this.greenhouses = greenhouses;
-        this.bugs = bugs;
+        this.greenhouses = new ArrayList<>();
+        this.bugs = new HashMap<>();
     }
 
     @Override
@@ -47,42 +47,34 @@ class GreenhousesAdapter extends BaseAdapter {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder viewHolder;
-
+        LayoutGreenhouseItemBinding binding;
         if (convertView == null) {
-            convertView = LayoutInflater.from(activity).inflate(R.layout.layout_greenhouse_item, parent, false);
-            viewHolder = new ViewHolder(activity, convertView);
-            convertView.setTag(viewHolder);
+            binding = LayoutGreenhouseItemBinding.inflate(activity.getLayoutInflater());
+            convertView = binding.getRoot();
+            convertView.setTag(binding);
         } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            binding = (LayoutGreenhouseItemBinding)convertView.getTag();
         }
 
         Greenhouse greenhouse = greenhouses.get(position);
+        Log.d(TAG, String.format("getView: %d\n%d\n%s", greenhouse.Height, greenhouse.Width, greenhouse.Id));
 
-        viewHolder.tv_greenhouse_id.setText(greenhouse.Id);
-        viewHolder.tv_greenhouse_width.setText(String.valueOf(greenhouse.Width));
-        viewHolder.tv_greenhouse_height.setText(String.valueOf(greenhouse.Height));
+        binding.tvGreenhouseId.setText(greenhouse.Id);
+        binding.tvGreenhouseWidth.setText(String.valueOf(greenhouse.Width));
+        binding.tvGreenhouseHeight.setText(String.valueOf(greenhouse.Height));
         Integer numBugs = bugs.get(greenhouses.get(position).Id);
-        viewHolder.tv_greenhouse_bugs.setText(numBugs != null ? numBugs.toString() : "0");
-
-        convertView.setClickable(true);
-        convertView.setOnClickListener(v -> activity.startActivity(new Intent(activity, GreenhouseActivity.class).putExtra("Greenhouse", greenhouse)));
+        binding.tvGreenhouseBugs.setText(numBugs != null ? numBugs.toString() : "0");
 
         return convertView;
     }
 
-    private class ViewHolder {
+    void addItem(Greenhouse greenhouse, int bugs) {
+        greenhouses.add(greenhouse);
+        this.bugs.put(greenhouse.Id, bugs);
+        notifyDataSetChanged();
+    }
 
-        TextView tv_greenhouse_id;
-        TextView tv_greenhouse_width;
-        TextView tv_greenhouse_height;
-        TextView tv_greenhouse_bugs;
-
-        ViewHolder(Context context, View view) {
-            tv_greenhouse_id = view.findViewById(R.id.tv_greenhouse_id);
-            tv_greenhouse_width = view.findViewById(R.id.tv_greenhouse_width);
-            tv_greenhouse_height = view.findViewById(R.id.tv_greenhouse_height);
-            tv_greenhouse_bugs = view.findViewById(R.id.tv_greenhouse_bugs);
-        }
+    Greenhouse getAtPosition(int position) {
+        return greenhouses.get(position);
     }
 }

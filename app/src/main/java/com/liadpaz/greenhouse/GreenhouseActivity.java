@@ -16,7 +16,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class GreenhouseActivity extends AppCompatActivity {
 
@@ -27,6 +26,7 @@ public class GreenhouseActivity extends AppCompatActivity {
 
     private ConstraintLayout layout_inner_greenhouse;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +34,7 @@ public class GreenhouseActivity extends AppCompatActivity {
 
         farm = Utilities.getFarm();
         if (Utilities.getRole() == Utilities.Role.Inspector) {
-            Utilities.setName(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName());
+            Utilities.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         }
         greenhouse = (Greenhouse) getIntent().getSerializableExtra("Greenhouse");
 
@@ -55,18 +55,12 @@ public class GreenhouseActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 bugs.clear();
-                dataSnapshot.getChildren().forEach(dst -> {
-                    Bug bug;
-                    if ((bug = dst.getValue(Bug.class)).Greenhouse.equals(greenhouse.Id)) {
-                        bugs.add(bug);
-                    }
-                });
-                bugs.forEach(bug -> runOnUiThread(() -> addBug(bug)));
+                dataSnapshot.child(greenhouse.Id).getChildren().forEach(dst -> bugs.add(dst.getValue(Bug.class)));
+                runOnUiThread(() -> bugs.forEach(GreenhouseActivity.this::addBug));
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
