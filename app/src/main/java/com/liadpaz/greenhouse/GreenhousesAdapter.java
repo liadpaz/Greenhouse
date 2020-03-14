@@ -73,7 +73,7 @@ class GreenhousesAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    void updateGreenhouseBugs(java.lang.String greenhouse, int count) {
+    void updateGreenhouseBugs(String greenhouse, int count) {
         try {
             this.bugs.put(greenhouse, count);
             notifyDataSetChanged();

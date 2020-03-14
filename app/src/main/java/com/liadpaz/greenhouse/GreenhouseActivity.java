@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GreenhouseActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
-    private static final java.lang.String TAG = "ACTIVITY_GREENHOUSE";
+    private static final String TAG = "ACTIVITY_GREENHOUSE";
     private Greenhouse greenhouse;
 
     private ArrayList<Bug> bugs = new ArrayList<>();
@@ -82,7 +82,7 @@ public class GreenhouseActivity extends AppCompatActivity {
             addedBugs.add(newBug);
             bugs.add(newBug);
             addRedBug(newBug);
-            tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+            tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
         });
 
         // get the size of the action bar
@@ -115,18 +115,15 @@ public class GreenhouseActivity extends AppCompatActivity {
         layout_inner_greenhouse.setBackgroundColor(Color.GREEN);
 
         // add all the previously downloaded bugs to the greenhouse (on screen)
-        bugs = JsonBug.getBugs(greenhouse.Id, new AtomicBoolean());
-        if (bugs == null) {
-            bugs = new ArrayList<>();
-        }
+        bugs = JsonBug.getBugs(greenhouse.toString(), new AtomicBoolean());
         bugs.forEach(this::addBlackBug);
 
         addedBugs = new ArrayList<>();
 
         // set the start bugs count to the proper count
-        binding.tvStartBugs.setText(java.lang.String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
+        binding.tvStartBugs.setText(String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
         // set the added bugs count to 0
-        tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+        tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
     }
 
     /**
@@ -168,7 +165,7 @@ public class GreenhouseActivity extends AppCompatActivity {
      */
     private void removeBugView(@NotNull Bug bug) {
         layout_inner_greenhouse.removeView(layout_inner_greenhouse.getViewById(bug.getId()));
-        tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+        tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
     }
 
     /**
@@ -191,11 +188,22 @@ public class GreenhouseActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_save_local) {
-            if (!inTask.get()) {
-                saveBugs();
-            } else {
-                Toast.makeText(GreenhouseActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+        switch (item.getItemId()) {
+            case R.id.menu_save_local: {
+                if (!inTask.get()) {
+                    saveBugs();
+                } else {
+                    Toast.makeText(GreenhouseActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+
+            case R.id.menu_delete_all_added: {
+                while (addedBugs.size() > 0) {
+                    removeBugView(addedBugs.remove(addedBugs.size() - 1));
+                }
+                Toast.makeText(GreenhouseActivity.this, R.string.deleted_all_added, Toast.LENGTH_LONG).show();
+                break;
             }
         }
         return true;

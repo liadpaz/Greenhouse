@@ -26,4 +26,5 @@
     <string name="delete_all_added">Delete all new added</string>
     <string name="greenhouse_select">Greenhouse Select</string>
     <string name="saved_bugs">Succussfully saved bugs to the local file</string>
+    <string name="deleted_all_added">Successfully deleted all new added bugs</string>
 </resources>

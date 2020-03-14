@@ -24,8 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GreenhouseSelectActivity extends AppCompatActivity {
 
-    private static final int GREENHOUSE_ACTIVITY = 768;
+    @SuppressWarnings("unused")
     private static final String TAG = "ACTIVITY_GREENHOUSE_SELECT";
+    private static final int GREENHOUSE_ACTIVITY = 768;
 
     private volatile AtomicBoolean inTask = new AtomicBoolean(true);
 
@@ -98,6 +99,7 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == GREENHOUSE_ACTIVITY) {
@@ -107,7 +109,7 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
                     if (bugArrayList == null) {
                         bugArrayList = new ArrayList<>();
                     }
-                    ((GreenhousesAdapter)lv_greenhouses.getAdapter()).updateGreenhouseBugs(greenhouse, bugArrayList.size());
+                    ((GreenhousesAdapter)lv_greenhouses.getAdapter()).updateGreenhouseBugs(Greenhouse.parse(greenhouse).Id, bugArrayList.size());
                 });
                 JsonBug.setLastUpdate(new Date(), inTask);
             }

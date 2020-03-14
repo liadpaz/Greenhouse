@@ -3,6 +3,7 @@ package com.liadpaz.greenhouse;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -29,9 +30,9 @@ class Utilities {
 
     // TODO: check if name and farm is necessary
     @SuppressWarnings("unused")
-    private static java.lang.String name;
+    private static String name;
     @SuppressWarnings("FieldCanBeLocal")
-    private static java.lang.String farm;
+    private static String farm;
     private static Role role;
     private static DatabaseReference greenhousesRef;
     private static DatabaseReference bugsRef;
@@ -43,11 +44,11 @@ class Utilities {
         bugsRef = mainRef.child("Bugs/" + farm);
     }
 
-    static void setName(java.lang.String name) {
+    static void setName(String name) {
         Utilities.name = name;
     }
 
-    static void setRole(Context context, @NonNull java.lang.String name) {
+    static void setRole(Context context, @NonNull String name) {
         if (context instanceof MainActivity) {
             Utilities.role = Role.Inspector;
             Utilities.name = name;
@@ -93,9 +94,10 @@ class Utilities {
     }
 }
 
+@SuppressWarnings("SpellCheckingInspection")
 @SuppressLint("SimpleDateFormat")
 class DateParser {
-    static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss.SSSSSSSX");
+    static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss.SSSSSSS");
 }
 
 @Keep
@@ -164,16 +166,16 @@ class GreenhousePath implements Serializable {
 @SuppressWarnings({"unused", "WeakerAccess"})
 class Bug {
 
-    public java.lang.String Greenhouse;
-    public java.lang.String Time;
+    public String Greenhouse;
+    public String Time;
     public double X;
     public double Y;
 
-    public Bug(java.lang.String greenhouse, Date time, double x, double y) {
+    public Bug(String greenhouse, Date time, double x, double y) {
         this.Greenhouse = greenhouse;
         this.Time = DateParser.dateFormat.format(time);
-        this.X = x;
-        this.Y = y;
+        this.X = Math.round(x * 100) / 100.0;
+        this.Y = Math.round(y * 100) / 100.0;
     }
 
     public Bug() {
@@ -192,17 +194,21 @@ class Bug {
 class JsonBug {
 
     @SuppressWarnings("unused")
-    private static final java.lang.String TAG = "JSON_BUG";
+    private static final String TAG = "JSON_BUG";
     private static SharedPreferences bugs;
 
     static void setJson(SharedPreferences bugs) {
         JsonBug.bugs = bugs;
     }
 
-    @Nullable
-    static ArrayList<Bug> getBugs(java.lang.String greenhouse, @NotNull AtomicBoolean inTask) {
+    @NotNull
+    static ArrayList<Bug> getBugs(String greenhouse, @NotNull AtomicBoolean inTask) {
         inTask.set(true);
         ArrayList<Bug> bugs = new Gson().fromJson(JsonBug.bugs.getString(greenhouse, null), new TypeToken<ArrayList<Bug>>() {}.getType());
+        if (bugs == null) {
+            bugs = new ArrayList<>();
+        }
+        Log.d(TAG, "getBugs: " + bugs.size());
         inTask.set(false);
         return bugs;
     }
@@ -237,6 +243,7 @@ class JsonBug {
 
     @SuppressLint("ApplySharedPref")
     static void clear(@NotNull AtomicBoolean inTask) {
+        Log.d(TAG, "clear: CLEAR");
         inTask.set(true);
         new Thread(() -> {
             bugs.edit().clear().commit();
