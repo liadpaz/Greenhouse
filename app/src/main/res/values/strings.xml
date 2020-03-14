@@ -25,6 +25,14 @@
     <string name="save_local">Save locally</string>
     <string name="delete_all_added">Delete all new added</string>
     <string name="greenhouse_select">Greenhouse Select</string>
-    <string name="saved_bugs">Succussfully saved bugs to the local file</string>
+    <string name="saved_bugs">Successfully saved bugs to the local file</string>
     <string name="deleted_all_added">Successfully deleted all new added bugs</string>
+    <string name="upload_to_cloud">Upload to the cloud</string>
+    <string name="sync_with_cloud">Sync from the cloud</string>
+    <string name="upload">Upload</string>
+    <string name="sync">Sync</string>
+    <string name="upload_to_cloud_message">This will try to upload all the data you collected to the cloud</string>
+    <string name="dont">Don\'t</string>
+    <string name="upload_successful">Successfully uploaded the data to the cloud</string>
+    <string name="upload_fail">Upload to the cloud failed</string>
 </resources>

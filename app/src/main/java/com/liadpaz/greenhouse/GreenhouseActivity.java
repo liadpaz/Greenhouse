@@ -55,11 +55,9 @@ public class GreenhouseActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         tv_added_bugs = binding.tvAddedBugs;
-
-        if (Utilities.getRole() == Utilities.Role.Inspector) {
-            Utilities.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        }
         greenhouse = (Greenhouse)getIntent().getSerializableExtra("Greenhouse");
+
+        getSupportActionBar().setTitle(String.format("%s: %s", getString(R.string.app_name), greenhouse.Id));
 
         layout_inner_greenhouse = binding.layoutInnerGreenhouse;
         binding.btnRemoveLast.setOnClickListener(v -> {
@@ -120,10 +118,19 @@ public class GreenhouseActivity extends AppCompatActivity {
 
         addedBugs = new ArrayList<>();
 
-        // set the start bugs count to the proper count
-        binding.tvStartBugs.setText(String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
-        // set the added bugs count to 0
-        tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+        if (Utilities.getRole() == Utilities.Role.Inspector) {
+            Utilities.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+
+            // set the start bugs count to the proper count
+            binding.tvStartBugs.setText(String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
+            // set the added bugs count to 0
+            tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+        } else {
+            binding.tvStartBugs.setVisibility(View.INVISIBLE);
+            binding.tvAddedBugs.setVisibility(View.INVISIBLE);
+            binding.btnAddBug.setVisibility(View.INVISIBLE);
+            binding.btnRemoveLast.setVisibility(View.INVISIBLE);
+        }
     }
 
     /**
@@ -204,6 +211,10 @@ public class GreenhouseActivity extends AppCompatActivity {
                 }
                 Toast.makeText(GreenhouseActivity.this, R.string.deleted_all_added, Toast.LENGTH_LONG).show();
                 break;
+            }
+
+            default: {
+                return false;
             }
         }
         return true;

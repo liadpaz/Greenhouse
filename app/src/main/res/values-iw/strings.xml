@@ -24,4 +24,12 @@
     <string name="greenhouse_select">בחירת חממה</string>
     <string name="saved_bugs">החרקים נשמרו בהצלחה באופן מקומי</string>
     <string name="deleted_all_added">כל החרקים החדשים נמחקו בהצלחה</string>
+    <string name="upload_to_cloud">העלאה לענן</string>
+    <string name="sync_with_cloud">סנכרון מהענן</string>
+    <string name="upload">העלאה</string>
+    <string name="sync">סנכרון</string>
+    <string name="upload_to_cloud_message">זה ינסה להעלות את כל המידע שאספת לענן</string>
+    <string name="dont">אל</string>
+    <string name="upload_successful">המידע הועלה בהצלחה לענן</string>
+    <string name="upload_fail">העלאה לענן נכשלה</string>
 </resources>

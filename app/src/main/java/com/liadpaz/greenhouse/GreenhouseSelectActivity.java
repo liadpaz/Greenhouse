@@ -2,11 +2,14 @@ package com.liadpaz.greenhouse;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
@@ -19,6 +22,7 @@ import com.liadpaz.greenhouse.databinding.ActivityGreenhouseSelectBinding;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -97,6 +101,36 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
         } catch (Exception ignored) {
             inTask.set(false);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_greenhouse_select, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_try_upload: {
+                new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.upload_to_cloud).setMessage(R.string.upload_to_cloud_message).setNegativeButton(R.string.dont, null).setPositiveButton(R.string.upload, (dialog, which) -> Utilities.checkConnection().thenApply(connection -> {
+                    if (connection) {
+                        HashMap<String, ArrayList<Bug>> bugs = new HashMap<>();
+                        Utilities.getBugsRef().setValue(null).addOnCompleteListener(task -> Toast.makeText(GreenhouseSelectActivity.this, task.isSuccessful() ? R.string.upload_successful : R.string.upload_fail, Toast.LENGTH_LONG).show());
+                    }
+                    return null;
+                })).show();
+                break;
+            }
+
+            case R.id.menu_try_sync:
+//                new AlertDialog.Builder(GreenhouseSelectActivity.this)
+                break;
+
+            default:
+                return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("ConstantConditions")

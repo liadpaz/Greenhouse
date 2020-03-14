@@ -50,33 +50,46 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         binding.btnMainInspector.setOnClickListener((v) -> {
             if (!inTask.get()) {
-                try {
-                    if (Utilities.checkConnection().get()) {
-                        if (auth.getCurrentUser() == null) {
-                            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build())).build(), FIREBASE_AUTH);
+                    Utilities.checkConnection().thenApply(connection -> {
+                        if (connection) {
+                            if (auth.getCurrentUser() == null) {
+                                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build())).build(), FIREBASE_AUTH);
+                            } else {
+                                Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
+                                checkFarms();
+                            }
                         } else {
-                            Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
-                            checkFarms();
+                            startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
                         }
-                    } else {
-                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
-                    }
-                } catch (Exception ignored) {
-                }
+                        return null;
+                    });
             } else {
                 Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
             }
         });
         binding.btnMainSpray.setOnClickListener((v -> {
-            Utilities.setRole(MainActivity.this);
-            new FarmIdSelectDialog(MainActivity.this).show();
+            if (!inTask.get()) {
+                Utilities.checkConnection().thenApply(connection -> {
+                    if (connection) {
+                        Utilities.setRole(MainActivity.this);
+                        Dialog farmDialog = new FarmIdSelectDialog(MainActivity.this);
+                        farmDialog.setOnDismissListener(dialog -> inTask.set(false));
+                        farmDialog.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                    }
+                    return null;
+                });
+            } else {
+                Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+            }
         }));
 
         JsonBug.setJson(getSharedPreferences("bugs", 0));
         JsonFarm.setJson(getSharedPreferences("farm", 0));
 
-        Utilities.checkConnection().thenApply((result) -> {
-            if (result) {
+        Utilities.checkConnection().thenApply(connection -> {
+            if (connection) {
                 if (auth.getCurrentUser() != null) {
                     inTask.set(true);
                     Log.d(TAG, "onCreate: 81: TRUE");
