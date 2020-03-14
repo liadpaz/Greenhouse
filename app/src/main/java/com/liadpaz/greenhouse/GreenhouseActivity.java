@@ -1,100 +1,230 @@
 package com.liadpaz.greenhouse;
 
+import android.annotation.SuppressLint;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
+import com.liadpaz.greenhouse.databinding.ActivityGreenhouseBinding;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GreenhouseActivity extends AppCompatActivity {
 
-    private String farm;
+    @SuppressWarnings("unused")
+    private static final java.lang.String TAG = "ACTIVITY_GREENHOUSE";
     private Greenhouse greenhouse;
 
     private ArrayList<Bug> bugs = new ArrayList<>();
 
     private ConstraintLayout layout_inner_greenhouse;
+    private int viewWidth;
+    private int viewHeight;
 
+    private ArrayList<Bug> addedBugs;
+
+    private TextView tv_added_bugs;
+
+    private AtomicBoolean inTask = new AtomicBoolean(false);
+
+    @SuppressLint("DefaultLocale")
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_greenhouse);
+        ActivityGreenhouseBinding binding = ActivityGreenhouseBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.toolbarGreenhouse);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        farm = Utilities.getFarm();
+        tv_added_bugs = binding.tvAddedBugs;
+
         if (Utilities.getRole() == Utilities.Role.Inspector) {
             Utilities.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         }
-        greenhouse = (Greenhouse) getIntent().getSerializableExtra("Greenhouse");
+        greenhouse = (Greenhouse)getIntent().getSerializableExtra("Greenhouse");
 
-        layout_inner_greenhouse = findViewById(R.id.layout_inner_greenhouse);
+        layout_inner_greenhouse = binding.layoutInnerGreenhouse;
+        binding.btnRemoveLast.setOnClickListener(v -> {
+            if (!inTask.get()) {
+                if (addedBugs.size() > 0) {
+                    Bug bugToRemove = addedBugs.remove(addedBugs.size() - 1);
+                    bugs.remove(bugToRemove);
+                    removeBugView(bugToRemove);
+                } else {
+                    Toast.makeText(GreenhouseActivity.this, R.string.cant_remove_bug, Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(GreenhouseActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+            }
+        });
+        binding.btnAddBug.setOnClickListener(v -> {
+            // TODO: add x and y coordinates from hardware
+            Random random = new Random();
+            Bug newBug = new Bug(greenhouse.Id, new Date(), random.nextDouble() * greenhouse.Width, random.nextDouble() * greenhouse.Height);
+            addedBugs.add(newBug);
+            bugs.add(newBug);
+            addRedBug(newBug);
+            tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+        });
 
-        layout_inner_greenhouse.setY(0);
-        layout_inner_greenhouse.setX(0);
+        // get the size of the action bar
+        TypedArray typedArray = obtainStyledAttributes(new int[]{R.attr.actionBarSize});
+        int toolbarHeight = (int)typedArray.getDimension(0, -1);
+        typedArray.recycle();
 
+        // get the screen width
         int width = getResources().getDisplayMetrics().widthPixels;
+        // get the ratio of the greenhouse size
+        double ratio = (double)greenhouse.Height / (double)greenhouse.Width;
 
-        //noinspection SuspiciousNameCombination
-        layout_inner_greenhouse.setLayoutParams(new ConstraintLayout.LayoutParams(width, width));
+        // set the greenhouse size (on screen), constraint layout
+        if (ratio > 1) {
+            viewWidth = (int)(width * (1 / ratio));
+            //noinspection SuspiciousNameCombination
+            viewHeight = width;
+            layout_inner_greenhouse.setLayoutParams(new ConstraintLayout.LayoutParams(viewWidth, viewHeight));
+            layout_inner_greenhouse.setX((float)((double)width / 2 * (1 - (1 / ratio))));
+            layout_inner_greenhouse.setY(toolbarHeight);
+        } else {
+            viewWidth = width;
+            viewHeight = (int)((double)width * ratio);
+            layout_inner_greenhouse.setLayoutParams(new ConstraintLayout.LayoutParams(viewWidth, viewHeight));
+            layout_inner_greenhouse.setX(0);
+            layout_inner_greenhouse.setY((float)((double)width / 2 * (1 - ratio)) + toolbarHeight);
+        }
 
+        // set the greenhouse color to green
         layout_inner_greenhouse.setBackgroundColor(Color.GREEN);
 
+        // add all the previously downloaded bugs to the greenhouse (on screen)
+        bugs = JsonBug.getBugs(greenhouse.Id, new AtomicBoolean());
+        if (bugs == null) {
+            bugs = new ArrayList<>();
+        }
+        bugs.forEach(this::addBlackBug);
 
-        Utilities.getBugsRef().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                bugs.clear();
-                dataSnapshot.child(greenhouse.Id).getChildren().forEach(dst -> bugs.add(dst.getValue(Bug.class)));
-                runOnUiThread(() -> bugs.forEach(GreenhouseActivity.this::addBug));
-            }
+        addedBugs = new ArrayList<>();
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        // set the start bugs count to the proper count
+        binding.tvStartBugs.setText(java.lang.String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
+        // set the added bugs count to 0
+        tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+    }
+
+    /**
+     * This function adds a red bug to the greenhouse (on screen). This is a newly found bug
+     *
+     * @param bug the bug to add
+     */
+    private void addRedBug(@NotNull Bug bug) {
+
+        double x = ((double)viewWidth / greenhouse.Width * bug.X) - 5;
+        double y = viewHeight - ((double)viewHeight / greenhouse.Height * bug.Y) - 5;
+
+        CircleView view = new CircleView(bug, x, y, 5, Color.RED);
+
+        layout_inner_greenhouse.addView(view);
+    }
+
+    /**
+     * This function adds a Black bug to the greenhouse (on screen). This is a bug that has already
+     * found
+     *
+     * @param bug the bug to add
+     */
+    private void addBlackBug(@NotNull Bug bug) {
+
+        double x = ((double)viewWidth / greenhouse.Width * bug.X) - 5;
+        double y = viewHeight - ((double)viewHeight / greenhouse.Height * bug.Y) - 5;
+
+        CircleView view = new CircleView(bug, x, y, 5, Color.BLACK);
+
+        layout_inner_greenhouse.addView(view);
+    }
+
+    /**
+     * This function removes a bug from the greenhouse (on screen). Only bugs that had been found on
+     * the current session
+     *
+     * @param bug the bug to remove
+     */
+    private void removeBugView(@NotNull Bug bug) {
+        layout_inner_greenhouse.removeView(layout_inner_greenhouse.getViewById(bug.getId()));
+        tv_added_bugs.setText(java.lang.String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
+    }
+
+    /**
+     * This function saves the bugs that have been added on the current session to the local file
+     */
+    private void saveBugs() {
+        inTask.set(true);
+        JsonBug.setBugs(greenhouse, bugs, () -> {
+            runOnUiThread(() -> Toast.makeText(GreenhouseActivity.this, R.string.saved_bugs, Toast.LENGTH_LONG).show());
+            inTask.set(false);
         });
+        setResult(RESULT_OK);
     }
 
-    private void addBug(Bug bug) {
-        double width = getResources().getDisplayMetrics().widthPixels;
-
-        double x = (width / greenhouse.Width * bug.X) - 5;
-        double y = width - (width / greenhouse.Height * bug.Y) - 5;
-
-        CircleView circleView = new CircleView(x, y, 5);
-
-        layout_inner_greenhouse.addView(circleView);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_greenhouse, menu);
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_save_local) {
+            if (!inTask.get()) {
+                saveBugs();
+            } else {
+                Toast.makeText(GreenhouseActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+            }
+        }
+        return true;
+    }
+
+    /**
+     * This class is for the bugs on screen. Circle spot on screen with id according the bug they
+     * represent
+     */
     private class CircleView extends View {
         private double size;
 
-        private Paint paint;
+        private Paint paint = new Paint();
 
-        public CircleView(double x, double y, double size) {
+        public CircleView(@NotNull Bug bug, double x, double y, double size, int color) {
             super(GreenhouseActivity.this);
-            setLayoutParams(new ConstraintLayout.LayoutParams((int) (size * 2), (int) (size * 2)));
 
-            setX((float) x);
-            setY((float) y);
+            setId(bug.getId());
+            setLayoutParams(new ConstraintLayout.LayoutParams((int)(size * 2), (int)(size * 2)));
+            setX((float)x);
+            setY((float)y);
             this.size = size;
-            this.paint = new Paint();
-            paint.setColor(Color.BLACK);
+            paint.setColor(color);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            canvas.drawCircle((float) size, (float) size, (float) size, paint);
+            canvas.drawCircle((float)size, (float)size, (float)size, paint);
         }
     }
 }

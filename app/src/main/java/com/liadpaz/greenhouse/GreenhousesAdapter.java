@@ -1,7 +1,6 @@
 package com.liadpaz.greenhouse;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 
 class GreenhousesAdapter extends BaseAdapter {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "GREENHOUSE_ADAPTER";
     private Activity activity;
     private ArrayList<Greenhouse> greenhouses;
@@ -41,7 +41,7 @@ class GreenhousesAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return getItem(position).hashCode();
     }
 
     @NonNull
@@ -57,7 +57,6 @@ class GreenhousesAdapter extends BaseAdapter {
         }
 
         Greenhouse greenhouse = greenhouses.get(position);
-        Log.d(TAG, String.format("getView: %d\n%d\n%s", greenhouse.Height, greenhouse.Width, greenhouse.Id));
 
         binding.tvGreenhouseId.setText(greenhouse.Id);
         binding.tvGreenhouseWidth.setText(String.valueOf(greenhouse.Width));
@@ -74,7 +73,11 @@ class GreenhousesAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    Greenhouse getAtPosition(int position) {
-        return greenhouses.get(position);
+    void updateGreenhouseBugs(java.lang.String greenhouse, int count) {
+        try {
+            this.bugs.put(greenhouse, count);
+            notifyDataSetChanged();
+        } catch (Exception ignored) {
+        }
     }
 }

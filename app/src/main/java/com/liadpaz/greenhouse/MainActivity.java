@@ -1,5 +1,6 @@
 package com.liadpaz.greenhouse;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,8 +22,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.liadpaz.greenhouse.databinding.ActivityMainBinding;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private DatabaseReference userRef;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,14 +48,18 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         binding.btnMainInspector.setOnClickListener((v) -> {
             if (!inTask.get()) {
-                if (auth.getCurrentUser() == null) {
-                    startActivityForResult(AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build()))
-                            .build(), FIREBASE_AUTH);
-                } else {
-                    Utilities.setRole(MainActivity.this, Objects.requireNonNull(auth.getCurrentUser().getDisplayName()));
-                    checkFarms();
+                try {
+                    if (Utilities.checkConnection().get()) {
+                        if (auth.getCurrentUser() == null) {
+                            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build())).build(), FIREBASE_AUTH);
+                        } else {
+                            Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
+                            checkFarms();
+                        }
+                    } else {
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                    }
+                } catch (Exception ignored) {
                 }
             } else {
                 Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
@@ -62,15 +70,28 @@ public class MainActivity extends AppCompatActivity {
             new FarmIdSelectDialog(MainActivity.this).show();
         }));
 
-        if (auth.getCurrentUser() != null) {
-            auth.getCurrentUser().reload().addOnCompleteListener(task -> {
+        JsonBug.setJson(getSharedPreferences("bugs", 0));
+        JsonFarm.setJson(getSharedPreferences("farm", 0));
+
+        try {
+            if (Utilities.checkConnection().get()) {
                 if (auth.getCurrentUser() != null) {
-                    userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
-                    checkFarms();
+                    inTask.set(true);
+                    auth.getCurrentUser().reload().addOnCompleteListener(task -> {
+                        if (auth.getCurrentUser() != null) {
+                            userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
+                            inTask.set(false);
+                            checkFarms();
+                        }
+                    });
                 }
-            });
+            }
+        } catch (Exception ignored) {
         }
 
+        if (TimeUnit.MILLISECONDS.toHours(new Date().getTime() - JsonBug.getLastUpdate().getTime()) >= 12) {
+            JsonBug.clear(inTask);
+        }
     }
 
     @Override
@@ -101,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This function iterates over all the user's farms and if there are more than one, shows a select dialog
+     * This function iterates over all the user's farms and if there are more than one, shows a
+     * select dialog
      */
     private void checkFarms() {
         inTask.set(true);
@@ -115,16 +137,20 @@ public class MainActivity extends AppCompatActivity {
                     farms.put(farm.getValue(String.class), firstKey = farm.getKey());
                 }
                 if (farms.size() > 2) {
-                    new FarmSelectDialog(MainActivity.this, farms).show();
+                    try {
+                        Dialog farmDialog = new FarmSelectDialog(MainActivity.this, farms);
+                        farmDialog.setOnDismissListener(dialog -> inTask.set(false));
+                        farmDialog.show();
+                    } catch (Exception ignored) {
+                    }
                 } else {
                     startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra("Farm", firstKey));
+                    inTask.set(false);
                 }
-                inTask.set(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 

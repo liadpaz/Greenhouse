@@ -25,7 +25,7 @@
         android:layout_marginBottom="24dp"
         android:text="@string/farm_select"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/spinner_farms"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

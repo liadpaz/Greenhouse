@@ -14,9 +14,16 @@
     <string name="greenhouse_width">Greenhouse Width:</string>
     <string name="greenhouse_height">Greenhouse Height:</string>
     <string name="select">Select</string>
-    <string name="greenhouse_select">Select Greenhouse:</string>
+    <string name="select_greenhouse">Select Greenhouse:</string>
     <string name="no_greenhouse">No Greenhouse</string>
     <string name="bug_add">Add new bug</string>
     <string name="bug_remove_last">Remove last bug</string>
     <string name="greenhouse_bugs">Bugs in greenhouse:</string>
+    <string name="start_bugs">How many bugs were when you started</string>
+    <string name="added_bugs">How many bugs you added</string>
+    <string name="cant_remove_bug">Can\'t remove the last bug because it was added in a previous session</string>
+    <string name="save_local">Save locally</string>
+    <string name="delete_all_added">Delete all new added</string>
+    <string name="greenhouse_select">Greenhouse Select</string>
+    <string name="saved_bugs">Succussfully saved bugs to the local file</string>
 </resources>

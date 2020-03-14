@@ -11,9 +11,16 @@
     <string name="greenhouse_height">אורך חממה:</string>
     <string name="greenhouse_width">רוחב חממה:</string>
     <string name="select">בחר</string>
-    <string name="greenhouse_select">תבחר חממה:</string>
+    <string name="select_greenhouse">תבחר חממה:</string>
     <string name="no_greenhouse">שום חממה</string>
     <string name="bug_add">הוסך חרק חדש</string>
     <string name="bug_remove_last">הסר את החרק האחרון</string>
     <string name="greenhouse_bugs">חרקים בחממה:</string>
+    <string name="start_bugs">כמה חרקים היו כשהתחלת לעבוד:</string>
+    <string name="added_bugs">כמה חרקים הוספת:</string>
+    <string name="cant_remove_bug">אי אפשר להסיר את החרק האחרון כי הוא נוסף על לא בפעילות זו</string>
+    <string name="save_local">שמור מקומי</string>
+    <string name="delete_all_added">מחק את כל החדשים שנוספו</string>
+    <string name="greenhouse_select">בחירת חממה</string>
+    <string name="saved_bugs">החרקים נשמרו בהצלחה באופן מקומי</string>
 </resources>
