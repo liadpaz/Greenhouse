@@ -29,8 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 class Utilities {
 
     // TODO: check if name and farm is necessary
-    @SuppressWarnings("unused")
-    private static String name;
     @SuppressWarnings("FieldCanBeLocal")
     private static String farm;
     private static Role role;
@@ -44,14 +42,15 @@ class Utilities {
         bugsRef = mainRef.child("Bugs/" + farm);
     }
 
-    static void setName(String name) {
-        Utilities.name = name;
+    static String getName() {
+        return JsonFarm.getString("name");
     }
 
+    @Contract(pure = true)
     static void setRole(Context context, @NonNull String name) {
         if (context instanceof MainActivity) {
             Utilities.role = Role.Inspector;
-            Utilities.name = name;
+            JsonFarm.setString("name", name);
         }
     }
 
@@ -230,12 +229,13 @@ class JsonBug {
         }).start();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NotNull
-    static HashMap<String, String> getGreenhouses() {
-        HashMap<String, String> greenhouses = new HashMap<>();
+    static HashMap<String, ArrayList<Bug>> getGreenhouses() {
+        HashMap<String, ArrayList<Bug>> greenhouses = new HashMap<>();
         bugs.getAll().forEach((key, value) -> {
             if (!key.equals("last-update")) {
-                greenhouses.put(key, value.toString());
+                greenhouses.put(Greenhouse.parse(key).Id, new Gson().fromJson(value.toString(), new TypeToken<ArrayList<Bug>>() {}.getType()));
             }
         });
         return greenhouses;
@@ -274,9 +274,18 @@ class JsonBug {
 // TODO: check if class is necessary
 class JsonFarm {
 
-    static SharedPreferences farm;
+    private static SharedPreferences farm;
 
     static void setJson(SharedPreferences farm) {
         JsonFarm.farm = farm;
+    }
+
+    static String getString(@NonNull String field) {
+            return farm.getString(field, null);
+    }
+
+    @SuppressLint("ApplySharedPref")
+    static void setString(@NonNull String field, @Nullable String value) {
+        farm.edit().putString(field, value).commit();
     }
 }

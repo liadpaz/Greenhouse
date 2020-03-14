@@ -3,7 +3,6 @@ package com.liadpaz.greenhouse;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -25,14 +24,14 @@ import com.liadpaz.greenhouse.databinding.ActivityMainBinding;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int FIREBASE_AUTH = 275;
+    @SuppressWarnings("unused")
     private static final String TAG = "MAIN_ACTIVITY";
+    private static final int FIREBASE_AUTH = 275;
 
     private volatile AtomicBoolean inTask = new AtomicBoolean(false);
 
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                                 checkFarms();
                             }
                         } else {
+                            Utilities.setRole(MainActivity.this, Utilities.getName());
                             startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
                         }
                         return null;
@@ -92,16 +92,14 @@ public class MainActivity extends AppCompatActivity {
             if (connection) {
                 if (auth.getCurrentUser() != null) {
                     inTask.set(true);
-                    Log.d(TAG, "onCreate: 81: TRUE");
                     auth.getCurrentUser().reload().addOnCompleteListener(task -> {
                         if (auth.getCurrentUser() != null) {
                             userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
+                            Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
                             inTask.set(false);
-                            Log.d(TAG, "onCreate: 86: FALSE");
                             runOnUiThread(this::checkFarms);
                         } else {
                             inTask.set(false);
-                            Log.d(TAG, "onCreate: 90: FALSE");
                         }
                     });
                 }
@@ -147,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkFarms() {
         inTask.set(true);
-        Log.d(TAG, "onCreate: 136: TRUE");
         HashMap<String, String> farms = new HashMap<>();
         farms.put(getString(R.string.no_farm), "");
         userRef.child("Farms").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -160,19 +157,14 @@ public class MainActivity extends AppCompatActivity {
                 if (farms.size() > 2) {
                     try {
                         Dialog farmDialog = new FarmSelectDialog(MainActivity.this, farms);
-                        farmDialog.setOnDismissListener(dialog -> {
-                            inTask.set(false);
-                            Log.d(TAG, "onCreate: 151: FALSE");
-                        });
+                        farmDialog.setOnDismissListener(dialog -> inTask.set(false));
                         farmDialog.show();
                     } catch (Exception ignored) {
                         inTask.set(false);
-                        Log.d(TAG, "onCreate: 156: FALSE");
                     }
                 } else {
                     startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra("Farm", firstKey));
                     inTask.set(false);
-                    Log.d(TAG, "onCreate: 161: FALSE");
                 }
             }
 
@@ -181,14 +173,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == FIREBASE_AUTH) {
             if (resultCode == RESULT_OK) {
-                userRef = FirebaseDatabase.getInstance().getReference("Users/" + Objects.requireNonNull(auth.getCurrentUser()).getUid());
+                userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
                 Toolbar toolbar = findViewById(R.id.toolbar_main);
                 toolbar.getMenu().findItem(R.id.menu_main_logout).setVisible(true);
-                Utilities.setRole(MainActivity.this, Objects.requireNonNull(auth.getCurrentUser().getDisplayName()));
+                Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
                 checkFarms();
             }
         } else {

@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.liadpaz.greenhouse.databinding.ActivityGreenhouseBinding;
 
 import org.jetbrains.annotations.NotNull;
@@ -119,8 +118,6 @@ public class GreenhouseActivity extends AppCompatActivity {
         addedBugs = new ArrayList<>();
 
         if (Utilities.getRole() == Utilities.Role.Inspector) {
-            Utilities.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-
             // set the start bugs count to the proper count
             binding.tvStartBugs.setText(String.format("%s: %d", getString(R.string.start_bugs), bugs.size()));
             // set the added bugs count to 0
