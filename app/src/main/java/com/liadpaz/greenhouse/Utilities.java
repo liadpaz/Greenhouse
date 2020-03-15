@@ -97,8 +97,8 @@ class Utilities {
     }
 
     public interface TaskFinished {
-        void Success();
-        void Fail();
+        default void Success() {}
+        default void Fail() {}
     }
 }
 

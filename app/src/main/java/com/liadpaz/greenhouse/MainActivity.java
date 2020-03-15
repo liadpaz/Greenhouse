@@ -49,20 +49,20 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         binding.btnMainInspector.setOnClickListener((v) -> {
             if (!inTask.get()) {
-                    Utilities.checkConnection().thenApply(connection -> {
-                        if (connection) {
-                            if (auth.getCurrentUser() == null) {
-                                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build())).build(), FIREBASE_AUTH);
-                            } else {
-                                Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
-                                checkFarms();
-                            }
+                Utilities.checkConnection().thenApply(connection -> {
+                    if (connection) {
+                        if (auth.getCurrentUser() == null) {
+                            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(false).build())).build(), FIREBASE_AUTH);
                         } else {
-                            Utilities.setRole(MainActivity.this, Utilities.getName());
-                            startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                            Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
+                            checkFarms();
                         }
-                        return null;
-                    });
+                    } else {
+                        Utilities.setRole(MainActivity.this, Utilities.getName());
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                    }
+                    return null;
+                });
             } else {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (!connection) {
@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMainSpray.setOnClickListener((v -> {
             if (!inTask.get()) {
                 Utilities.checkConnection().thenApply(connection -> {
+                    Utilities.setRole(MainActivity.this);
                     if (connection) {
-                        Utilities.setRole(MainActivity.this);
                         Dialog farmDialog = new FarmIdSelectDialog(MainActivity.this);
                         farmDialog.setOnDismissListener(dialog -> inTask.set(false));
                         farmDialog.show();

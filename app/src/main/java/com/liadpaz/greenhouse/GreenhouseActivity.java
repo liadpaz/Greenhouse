@@ -128,9 +128,7 @@ public class GreenhouseActivity extends AppCompatActivity {
             binding.btnAddBug.setVisibility(View.INVISIBLE);
             binding.btnRemoveLast.setVisibility(View.INVISIBLE);
             binding.btnUploadToPi.setVisibility(View.VISIBLE);
-            binding.btnUploadToPi.setOnClickListener((v -> {
-                // TODO: add click listener
-            }));
+            binding.btnUploadToPi.setOnClickListener((v -> uploadToPi()));
         }
     }
 
@@ -188,13 +186,23 @@ public class GreenhouseActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
+    /**
+     * This function uploads the bugs from the local file to the Raspberry Pi controller
+     */
+    private void uploadToPi() {
+        // TODO: add method
+        Toast.makeText(GreenhouseActivity.this, "Uploading", Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (Utilities.getRole() == Utilities.Role.Inspector) {
-            getMenuInflater().inflate(R.menu.menu_greenhouse, menu);
-            return true;
+        getMenuInflater().inflate(R.menu.menu_greenhouse, menu);
+        // if the user is an exterminator; he shouldn't have the option to change the bugs hence the option to save/delete local file
+        if (Utilities.getRole() == Utilities.Role.Exterminator) {
+            menu.findItem(R.id.menu_save_local).setVisible(false);
+            menu.findItem(R.id.menu_delete_all_added).setVisible(false);
         }
-        return false;
+        return true;
     }
 
     @Override
