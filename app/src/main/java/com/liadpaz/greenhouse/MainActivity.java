@@ -78,9 +78,11 @@ public class MainActivity extends AppCompatActivity {
                 Utilities.checkConnection().thenApply(connection -> {
                     Utilities.setRole(MainActivity.this);
                     if (connection) {
-                        Dialog farmDialog = new FarmIdSelectDialog(MainActivity.this);
-                        farmDialog.setOnDismissListener(dialog -> inTask.set(false));
-                        farmDialog.show();
+                        runOnUiThread(() -> {
+                            Dialog farmDialog = new FarmIdSelectDialog(MainActivity.this);
+                            farmDialog.setOnDismissListener(dialog -> inTask.set(false));
+                            farmDialog.show();
+                        });
                     } else {
                         startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
                     }
