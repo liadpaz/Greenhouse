@@ -64,7 +64,13 @@ public class MainActivity extends AppCompatActivity {
                         return null;
                     });
             } else {
-                Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+                Utilities.checkConnection().thenApplyAsync(connection -> {
+                    if (!connection) {
+                        inTask.set(false);
+                    }
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
+                    return null;
+                });
             }
         });
         binding.btnMainSpray.setOnClickListener((v -> {
@@ -81,14 +87,20 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 });
             } else {
-                Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
+                Utilities.checkConnection().thenApplyAsync(connection -> {
+                    if (!connection) {
+                        inTask.set(false);
+                    }
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
+                    return null;
+                });
             }
         }));
 
         JsonBug.setJson(getSharedPreferences("bugs", 0));
         JsonFarm.setJson(getSharedPreferences("farm", 0));
 
-        Utilities.checkConnection().thenApply(connection -> {
+        Utilities.checkConnection().thenApplyAsync(connection -> {
             if (connection) {
                 if (auth.getCurrentUser() != null) {
                     inTask.set(true);

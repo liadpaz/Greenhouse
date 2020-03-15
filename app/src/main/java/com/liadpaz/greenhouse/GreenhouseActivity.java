@@ -127,6 +127,10 @@ public class GreenhouseActivity extends AppCompatActivity {
             binding.tvAddedBugs.setVisibility(View.INVISIBLE);
             binding.btnAddBug.setVisibility(View.INVISIBLE);
             binding.btnRemoveLast.setVisibility(View.INVISIBLE);
+            binding.btnUploadToPi.setVisibility(View.VISIBLE);
+            binding.btnUploadToPi.setOnClickListener((v -> {
+                // TODO: add click listener
+            }));
         }
     }
 
@@ -186,8 +190,11 @@ public class GreenhouseActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_greenhouse, menu);
-        return true;
+        if (Utilities.getRole() == Utilities.Role.Inspector) {
+            getMenuInflater().inflate(R.menu.menu_greenhouse, menu);
+            return true;
+        }
+        return false;
     }
 
     @Override

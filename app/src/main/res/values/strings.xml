@@ -36,4 +36,12 @@
     <string name="upload_successful">Successfully uploaded the data to the cloud</string>
     <string name="upload_fail">Upload to the cloud failed</string>
     <string name="no_connection">No internet connection, try again later</string>
+    <string name="sync_with_cloud_message">This will try to download all the info from the cloud to your device</string>
+    <string name="sync_successful">Successfully synced the data from the cloud with your device</string>
+    <string name="sync_fail">Failed to sync the data from the cloud with your device</string>
+    <string name="local">Local</string>
+    <string name="cloud">Cloud</string>
+    <string name="local_cloud">Use Cloud or Local</string>
+    <string name="local_cloud_message">Download data from the cloud or use local data?</string>
+    <string name="upload_to_pi">Upload to controller</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import com.liadpaz.greenhouse.databinding.LayoutGreenhouseItemBinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 class GreenhousesAdapter extends BaseAdapter {
@@ -70,6 +71,13 @@ class GreenhousesAdapter extends BaseAdapter {
     void addItem(Greenhouse greenhouse, int bugs) {
         greenhouses.add(greenhouse);
         this.bugs.put(greenhouse.Id, bugs);
+        Collections.sort(greenhouses, (greenhouse1, greenhouse2) -> greenhouse1.Id.compareTo(greenhouse2.Id));
+        notifyDataSetChanged();
+    }
+
+    void clear() {
+        bugs.clear();
+        greenhouses.clear();
         notifyDataSetChanged();
     }
 

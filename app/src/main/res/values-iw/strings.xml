@@ -33,4 +33,12 @@
     <string name="upload_successful">המידע הועלה בהצלחה לענן</string>
     <string name="upload_fail">העלאה לענן נכשלה</string>
     <string name="no_connection">אין חיבור לאינטרנט, נסה מאוחר</string>
+    <string name="sync_with_cloud_message">זה ינסה להוריד את כל המידע למכשירך</string>
+    <string name="sync_successful">המידע מהענן סונכרן בהצלחה עם מכשירך</string>
+    <string name="sync_fail">נכשל הסנכרון המידע מהענן עם מכשירך</string>
+    <string name="local">מקומי</string>
+    <string name="cloud">ענן</string>
+    <string name="local_cloud">שימוש מהענן או מקומי</string>
+    <string name="local_cloud_message">להוריד מידע מהענן או שימוש במקומי?</string>
+    <string name="upload_to_pi">העלאה לבקר</string>
 </resources>

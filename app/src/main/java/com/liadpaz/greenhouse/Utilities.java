@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class Utilities {
 
+    private static final String TAG = "UTILITIES";
     // TODO: check if name and farm is necessary
     @SuppressWarnings("FieldCanBeLocal")
     private static String farm;
@@ -81,8 +82,11 @@ class Utilities {
     static CompletableFuture<Boolean> checkConnection() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return InetAddress.getByName("google.com").isReachable(3000);
+                boolean result = InetAddress.getByName("google.com").isReachable(3000);
+                Log.d(TAG, "checkConnection: " + result);
+                return result;
             } catch (Exception ignored) {
+                Log.d(TAG, "checkConnection: NO CONNECTION");
                 return false;
             }
         });
@@ -90,6 +94,11 @@ class Utilities {
 
     public enum Role {
         Inspector, Exterminator
+    }
+
+    public interface TaskFinished {
+        void Success();
+        void Fail();
     }
 }
 
@@ -229,13 +238,12 @@ class JsonBug {
         }).start();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NotNull
-    static HashMap<String, ArrayList<Bug>> getGreenhouses() {
-        HashMap<String, ArrayList<Bug>> greenhouses = new HashMap<>();
+    static HashMap<Greenhouse, ArrayList<Bug>> getGreenhouses() {
+        HashMap<Greenhouse, ArrayList<Bug>> greenhouses = new HashMap<>();
         bugs.getAll().forEach((key, value) -> {
             if (!key.equals("last-update")) {
-                greenhouses.put(Greenhouse.parse(key).Id, new Gson().fromJson(value.toString(), new TypeToken<ArrayList<Bug>>() {}.getType()));
+                greenhouses.put(Greenhouse.parse(key), new Gson().fromJson(value.toString(), new TypeToken<ArrayList<Bug>>() {}.getType()));
             }
         });
         return greenhouses;
