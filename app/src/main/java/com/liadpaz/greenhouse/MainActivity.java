@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private DatabaseReference userRef;
 
+    private ValueEventListener valueEventListener;
+
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (!connection) {
+                        if (valueEventListener != null) {
+                            userRef.child("Farms").removeEventListener(valueEventListener);
+                            valueEventListener = null;
+                        }
                         inTask.set(false);
                     }
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
@@ -91,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (!connection) {
+                        if (valueEventListener != null) {
+                            userRef.child("Farms").removeEventListener(valueEventListener);
+                            valueEventListener = null;
+                        }
                         inTask.set(false);
                     }
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
@@ -161,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         inTask.set(true);
         HashMap<String, String> farms = new HashMap<>();
         farms.put(getString(R.string.no_farm), "");
-        userRef.child("Farms").addListenerForSingleValueEvent(new ValueEventListener() {
+        valueEventListener = userRef.child("Farms").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String firstKey = null;
@@ -180,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra("Farm", firstKey));
                     inTask.set(false);
                 }
+                dataSnapshot.getRef().removeEventListener(valueEventListener);
+                valueEventListener = null;
             }
 
             @Override
