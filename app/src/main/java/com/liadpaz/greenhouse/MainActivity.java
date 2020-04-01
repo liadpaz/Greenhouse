@@ -3,6 +3,7 @@ package com.liadpaz.greenhouse;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -14,17 +15,16 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.liadpaz.greenhouse.databinding.ActivityMainBinding;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,9 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private volatile AtomicBoolean inTask = new AtomicBoolean(false);
 
     private FirebaseAuth auth;
-    private DatabaseReference userRef;
-
-    private ValueEventListener valueEventListener;
+    private DocumentReference userRef;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -61,17 +59,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else {
                         Utilities.setRole(MainActivity.this, Utilities.getName());
-                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra(Constants.GreenhouseSelectExtra.FARM, Utilities.getId()));
                     }
                     return null;
                 });
             } else {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (!connection) {
-                        if (valueEventListener != null) {
-                            userRef.child("Farms").removeEventListener(valueEventListener);
-                            valueEventListener = null;
-                        }
                         inTask.set(false);
                     }
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
@@ -90,17 +84,13 @@ public class MainActivity extends AppCompatActivity {
                             farmDialog.show();
                         });
                     } else {
-                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class));
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra(Constants.GreenhouseSelectExtra.FARM, Utilities.getId()));
                     }
                     return null;
                 });
             } else {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (!connection) {
-                        if (valueEventListener != null) {
-                            userRef.child("Farms").removeEventListener(valueEventListener);
-                            valueEventListener = null;
-                        }
                         inTask.set(false);
                     }
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show());
@@ -109,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
 
-        JsonBug.setJson(getSharedPreferences("bugs", 0));
-        JsonFarm.setJson(getSharedPreferences("farm", 0));
+        Json.setJson(getSharedPreferences(Constants.SharedPrefConstants.BUGS, 0), getSharedPreferences(Constants.SharedPrefConstants.FARM, 0));
 
         Utilities.checkConnection().thenApplyAsync(connection -> {
             if (connection) {
@@ -118,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
                     inTask.set(true);
                     auth.getCurrentUser().reload().addOnCompleteListener(task -> {
                         if (auth.getCurrentUser() != null) {
-                            userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
+                            userRef = FirebaseFirestore.getInstance().collection(Constants.FirebaseConstants.USERS).document(auth.getCurrentUser().getUid());
                             Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());
                             inTask.set(false);
-                            runOnUiThread(this::checkFarms);
+                            checkFarms();
                         } else {
                             inTask.set(false);
                         }
@@ -131,8 +120,9 @@ public class MainActivity extends AppCompatActivity {
             return null;
         });
 
-        if (TimeUnit.MILLISECONDS.toHours(new Date().getTime() - JsonBug.getLastUpdate().getTime()) >= 12) {
-            JsonBug.clear(inTask);
+        // check if 12 hours or more has passed since last bug fetch / upload
+        if (((new Date().getTime() - Json.JsonFarm.getLastUpdate().getTime()) / (1000.0 * 60.0 * 60.0)) >= 6) {
+            Json.clear();
         }
     }
 
@@ -167,36 +157,27 @@ public class MainActivity extends AppCompatActivity {
      * This function iterates over all the user's farms and if there are more than one, shows a
      * select dialog
      */
+    @SuppressWarnings("ConstantConditions")
     private void checkFarms() {
         inTask.set(true);
         HashMap<String, String> farms = new HashMap<>();
-        farms.put(getString(R.string.no_farm), "");
-        valueEventListener = userRef.child("Farms").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String firstKey = null;
-                for (DataSnapshot farm : dataSnapshot.getChildren()) {
-                    farms.put(farm.getValue(String.class), firstKey = farm.getKey());
-                }
-                if (farms.size() > 2) {
-                    try {
-                        Dialog farmDialog = new FarmSelectDialog(MainActivity.this, farms);
-                        farmDialog.setOnDismissListener(dialog -> inTask.set(false));
-                        farmDialog.show();
-                    } catch (Exception ignored) {
-                        inTask.set(false);
+        farms.put(getString(R.string.choose_farm), "");
+        userRef.collection(Constants.FirebaseConstants.FARMS).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot admins = task.getResult();
+                if (admins != null) {
+                    List<DocumentSnapshot> userAdmins = admins.getDocuments();
+                    if (userAdmins != null && userAdmins.size() == 1) {
+                        startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra(Constants.GreenhouseSelectExtra.FARM, userAdmins.get(0).getId()));
+                    } else if (userAdmins != null) {
+                        userAdmins.forEach(admin -> farms.put(admin.get(Constants.FirebaseConstants.NAME).toString(), admin.getId()));
+                        runOnUiThread(new FarmSelectDialog(MainActivity.this, farms)::show);
                     }
-                } else {
-                    startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra("Farm", firstKey));
-                    inTask.set(false);
                 }
-                dataSnapshot.getRef().removeEventListener(valueEventListener);
-                valueEventListener = null;
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            inTask.set(false);
         });
+
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -204,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == FIREBASE_AUTH) {
             if (resultCode == RESULT_OK) {
-                userRef = FirebaseDatabase.getInstance().getReference("Users/" + auth.getCurrentUser().getUid());
+                userRef = FirebaseFirestore.getInstance().collection(Constants.FirebaseConstants.USERS).document(auth.getCurrentUser().getUid());
                 Toolbar toolbar = findViewById(R.id.toolbar_main);
                 toolbar.getMenu().findItem(R.id.menu_main_logout).setVisible(true);
                 Utilities.setRole(MainActivity.this, auth.getCurrentUser().getDisplayName());

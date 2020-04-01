@@ -54,9 +54,9 @@ public class GreenhouseActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         tv_added_bugs = binding.tvAddedBugs;
-        greenhouse = (Greenhouse)getIntent().getSerializableExtra("Greenhouse");
+        greenhouse = (Greenhouse)getIntent().getSerializableExtra(Constants.GreenhouseExtra.GREENHOUSE);
 
-        getSupportActionBar().setTitle(String.format("%s: %s", getString(R.string.app_name), greenhouse.Id));
+        getSupportActionBar().setTitle(String.format("%s: %s", getString(R.string.app_name), greenhouse.getId()));
 
         layout_inner_greenhouse = binding.layoutInnerGreenhouse;
         binding.btnRemoveLast.setOnClickListener(v -> {
@@ -75,7 +75,7 @@ public class GreenhouseActivity extends AppCompatActivity {
         binding.btnAddBug.setOnClickListener(v -> {
             // TODO: add x and y coordinates from hardware
             Random random = new Random();
-            Bug newBug = new Bug(greenhouse.Id, new Date(), random.nextDouble() * greenhouse.Width, random.nextDouble() * greenhouse.Height);
+            Bug newBug = new Bug(greenhouse.getId(), new Date(), random.nextDouble() * greenhouse.getWidth(), random.nextDouble() * greenhouse.getHeight());
             addedBugs.add(newBug);
             bugs.add(newBug);
             addRedBug(newBug);
@@ -90,7 +90,7 @@ public class GreenhouseActivity extends AppCompatActivity {
         // get the screen width
         int width = getResources().getDisplayMetrics().widthPixels;
         // get the ratio of the greenhouse size
-        double ratio = (double)greenhouse.Height / (double)greenhouse.Width;
+        double ratio = (double)greenhouse.getHeight() / (double)greenhouse.getWidth();
 
         // set the greenhouse size (on screen), constraint layout
         if (ratio > 1) {
@@ -112,7 +112,7 @@ public class GreenhouseActivity extends AppCompatActivity {
         layout_inner_greenhouse.setBackgroundColor(Color.GREEN);
 
         // add all the previously downloaded bugs to the greenhouse (on screen)
-        bugs = JsonBug.getBugs(greenhouse.toString(), new AtomicBoolean());
+        bugs = Json.JsonBugs.getBugs(greenhouse.toString());
         bugs.forEach(this::addBlackBug);
 
         addedBugs = new ArrayList<>();
@@ -138,9 +138,8 @@ public class GreenhouseActivity extends AppCompatActivity {
      * @param bug the bug to add
      */
     private void addRedBug(@NotNull Bug bug) {
-
-        double x = ((double)viewWidth / greenhouse.Width * bug.X) - 5;
-        double y = viewHeight - ((double)viewHeight / greenhouse.Height * bug.Y) - 5;
+        double x = ((double)viewWidth / greenhouse.getWidth() * bug.getX()) - 5;
+        double y = viewHeight - ((double)viewHeight / greenhouse.getHeight() * bug.getY()) - 5;
 
         CircleView view = new CircleView(bug, x, y, 5, Color.RED);
 
@@ -154,9 +153,8 @@ public class GreenhouseActivity extends AppCompatActivity {
      * @param bug the bug to add
      */
     private void addBlackBug(@NotNull Bug bug) {
-
-        double x = ((double)viewWidth / greenhouse.Width * bug.X) - 5;
-        double y = viewHeight - ((double)viewHeight / greenhouse.Height * bug.Y) - 5;
+        double x = ((double)viewWidth / greenhouse.getWidth() * bug.getX()) - 5;
+        double y = viewHeight - ((double)viewHeight / greenhouse.getHeight() * bug.getY()) - 5;
 
         CircleView view = new CircleView(bug, x, y, 5, Color.BLACK);
 
@@ -178,11 +176,8 @@ public class GreenhouseActivity extends AppCompatActivity {
      * This function saves the bugs that have been added on the current session to the local file
      */
     private void saveBugs() {
-        inTask.set(true);
-        JsonBug.setBugs(greenhouse, bugs, () -> {
-            runOnUiThread(() -> Toast.makeText(GreenhouseActivity.this, R.string.saved_bugs, Toast.LENGTH_LONG).show());
-            inTask.set(false);
-        });
+        Json.JsonBugs.setBugs(greenhouse, bugs);
+        Toast.makeText(GreenhouseActivity.this, R.string.saved_bugs, Toast.LENGTH_LONG).show();
         setResult(RESULT_OK);
     }
 

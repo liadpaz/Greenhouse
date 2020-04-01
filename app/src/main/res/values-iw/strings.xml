@@ -3,7 +3,7 @@
     <string name="app_name">חממה</string>
     <string name="inspector">מפקח</string>
     <string name="farm_select">בחר את המשק שאתה בו עכשיו:</string>
-    <string name="no_farm">שום משק</string>
+    <string name="choose_farm">בחר משק</string>
     <string name="cant_do_this_now">אי אפשר לעשות את זה כרגע</string>
     <string name="logout">התנתק</string>
     <string name="logout_successful">התנתקת בהצלחה</string>

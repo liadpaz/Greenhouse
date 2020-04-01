@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Programs\\Android\\Android Singing Keys\\key.jks')
+            keyAlias = 'key0'
+            keyPassword 'Liad1234'
+            storePassword 'Liad1234'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     viewBinding {
@@ -37,13 +45,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.firebase:firebase-analytics:17.2.3'
     implementation 'com.google.firebase:firebase-database:19.2.1'
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.firebase:firebase-firestore:21.4.1'
 }

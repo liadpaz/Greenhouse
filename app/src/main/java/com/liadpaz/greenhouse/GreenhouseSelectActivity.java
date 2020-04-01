@@ -18,14 +18,16 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.liadpaz.greenhouse.Utilities.TaskFinished;
 import com.liadpaz.greenhouse.databinding.ActivityGreenhouseSelectBinding;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.liadpaz.greenhouse.Constants.FirebaseConstants;
+import static com.liadpaz.greenhouse.Constants.GreenhouseExtra;
+import static com.liadpaz.greenhouse.Constants.GreenhouseSelectExtra;
 
 public class GreenhouseSelectActivity extends AppCompatActivity {
 
@@ -47,7 +49,7 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.greenhouse_select);
 
-        String farm = getIntent().getStringExtra("Farm");
+        String farm = getIntent().getStringExtra(GreenhouseSelectExtra.FARM);
 
         lv_greenhouses = binding.lvGreenhouses;
 
@@ -56,42 +58,25 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
             if (inTask.get()) {
                 Toast.makeText(GreenhouseSelectActivity.this, R.string.cant_do_this_now, Toast.LENGTH_LONG).show();
             } else {
-                startActivityForResult(new Intent(GreenhouseSelectActivity.this, GreenhouseActivity.class).putExtra("Greenhouse", (Greenhouse)parent.getItemAtPosition(position)), GREENHOUSE_ACTIVITY);
+                startActivityForResult(new Intent(GreenhouseSelectActivity.this, GreenhouseActivity.class).putExtra(GreenhouseExtra.GREENHOUSE, (Greenhouse)parent.getItemAtPosition(position)), GREENHOUSE_ACTIVITY);
             }
         });
 
-        Utilities.setCurrentFarm(farm);
+        if (farm != null) {
+            Utilities.setCurrentFarm(farm);
+            Utilities.setId(farm);
+        }
         inTask.set(true);
         Utilities.checkConnection().thenApplyAsync(connection -> {
+            inTask.set(false);
             if (connection) {
-                if (JsonBug.getGreenhouses().size() != 0) {
-                    runOnUiThread(() -> new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.local_cloud).setMessage(R.string.local_cloud_message).setNegativeButton(R.string.cloud, ((dialog, which) -> downloadBugs(new TaskFinished() {
-                        @Override
-                        public void Success() {
-                            inTask.set(false);
-                        }
-
-                        @Override
-                        public void Fail() {
-                            inTask.set(false);
-                        }
-                    }))).setPositiveButton(R.string.local, (dialog, which) -> useLocalBugs()).show());
+                if (Json.JsonBugs.getGreenhouses().size() == 0) {
+                    downloadBugs();
                 } else {
-                    downloadBugs(new TaskFinished() {
-                        @Override
-                        public void Success() {
-                            inTask.set(false);
-                        }
-
-                        @Override
-                        public void Fail() {
-                            inTask.set(false);
-                        }
-                    });
+                    runOnUiThread(() -> new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.local_cloud).setMessage(R.string.local_cloud_message).setNegativeButton(R.string.cloud, ((dialog, which) -> downloadBugs())).setPositiveButton(R.string.local, (dialog, which) -> useLocalBugs()).show());
                 }
             } else {
                 useLocalBugs();
-                inTask.set(false);
             }
             return null;
         });
@@ -111,23 +96,12 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
                     if (connection) {
                         runOnUiThread(() -> new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.upload_to_cloud).setMessage(R.string.upload_to_cloud_message).setNegativeButton(R.string.dont, null).setPositiveButton(R.string.upload, (dialog, which) -> {
                             HashMap<String, ArrayList<Bug>> bugs = new HashMap<>();
-                            JsonBug.getGreenhouses().forEach(((greenhouse, bugsList) -> bugs.put(greenhouse.Id, bugsList)));
+                            Json.JsonBugs.getGreenhouses().forEach(((greenhouse, bugsList) -> bugs.put(greenhouse.getId(), bugsList)));
                             Utilities.getBugsRef().runTransaction(new Transaction.Handler() {
-                                @SuppressWarnings("ConstantConditions")
                                 @NonNull
                                 @Override
                                 public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                                    HashMap<String, ArrayList<Bug>> databaseBugs = currentData.getValue(new GenericTypeIndicator<HashMap<String, ArrayList<Bug>>>() {});
-                                    databaseBugs.forEach((greenhouse, bugsList) -> {
-                                        if (!bugs.get(greenhouse).equals(bugsList)) {
-                                            currentData.child(greenhouse).setValue(bugs.get(greenhouse));
-                                        }
-                                    });
-                                    bugs.keySet().forEach(greenhouse -> {
-                                        if (!databaseBugs.containsKey(greenhouse)) {
-                                            currentData.child(greenhouse).setValue(bugs.get(greenhouse));
-                                        }
-                                    });
+                                    currentData.setValue(bugs);
                                     return Transaction.success(currentData);
                                 }
 
@@ -148,19 +122,7 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
             case R.id.menu_try_sync: {
                 Utilities.checkConnection().thenApplyAsync(connection -> {
                     if (connection) {
-                        runOnUiThread(() -> new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.sync_with_cloud).setMessage(R.string.sync_with_cloud_message).setNegativeButton(R.string.dont, null).setPositiveButton(R.string.sync, (dialog, which) -> downloadBugs(new TaskFinished() {
-                            @Override
-                            public void Success() {
-                                Toast.makeText(GreenhouseSelectActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
-                                inTask.set(false);
-                            }
-
-                            @Override
-                            public void Fail() {
-                                Toast.makeText(GreenhouseSelectActivity.this, R.string.sync_fail, Toast.LENGTH_LONG).show();
-                                inTask.set(false);
-                            }
-                        })).show());
+                        runOnUiThread(() -> new AlertDialog.Builder(GreenhouseSelectActivity.this).setTitle(R.string.sync_with_cloud).setMessage(R.string.sync_with_cloud_message).setNegativeButton(R.string.dont, null).setPositiveButton(R.string.sync, (dialog, which) -> downloadBugs()).show());
                     } else {
                         runOnUiThread(() -> Toast.makeText(GreenhouseSelectActivity.this, R.string.no_connection, Toast.LENGTH_LONG).show());
                     }
@@ -176,45 +138,37 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * This function is used to download bugs data from the cloud (Firebase Firestore)
+     */
     @SuppressWarnings("ConstantConditions")
-    private void downloadBugs(@Nullable TaskFinished taskFinished) {
+    private void downloadBugs() {
         ((GreenhousesAdapter)lv_greenhouses.getAdapter()).clear();
-        Utilities.getGreenhousesRef().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final long count = snapshot.getChildrenCount();
-                AtomicInteger current = new AtomicInteger(0);
-                for (DataSnapshot greenhouse : snapshot.getChildren()) {
-                    Utilities.getBugsRef().child(greenhouse.getValue(Greenhouse.class).Id).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            JsonBug.setBugs(greenhouse.getValue(Greenhouse.class), snapshot.getValue(new GenericTypeIndicator<ArrayList<Bug>>() {}), inTask);
-                            ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(greenhouse.getValue(Greenhouse.class), (int)snapshot.getChildrenCount());
-                            if (current.incrementAndGet() == count) {
-                                inTask.set(false);
-                            }
-                        }
+        inTask.set(true);
+        Utilities.getGreenhousesRef().collection(FirebaseConstants.GREENHOUSES).get().addOnSuccessListener(documents -> documents.getDocuments().forEach(greenhouse -> {
+            Greenhouse currentGreenhouse = new Greenhouse(greenhouse.getId(), greenhouse.get(FirebaseConstants.WIDTH, Integer.class), greenhouse.get(FirebaseConstants.HEIGHT, Integer.class));
+            ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(currentGreenhouse, greenhouse.get(FirebaseConstants.BUG_COUNT, Integer.class));
+            Utilities.getBugsRef().child(currentGreenhouse.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    inTask.set(true);
+                    Json.JsonBugs.setBugs(currentGreenhouse, dataSnapshot.getValue(new GenericTypeIndicator<ArrayList<Bug>>() {}));
+                    inTask.set(false);
+                }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
-                    });
-                }
-                if (taskFinished != null) {
-                    taskFinished.Success();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                if (taskFinished != null) {
-                    taskFinished.Fail();
-                }
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {}
+            });
+        }));
+        Json.JsonFarm.setLastUpdate(new Date());
     }
 
+    /**
+     * This function is used to load bugs data from local file (bugs in Shared Preferences)
+     */
     private void useLocalBugs() {
-        runOnUiThread(() -> JsonBug.getGreenhouses().forEach((greenhouse, bugs) -> ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(greenhouse, bugs.size())));
+        Json.JsonBugs.getGreenhouses().forEach((greenhouse, bugs) -> ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(greenhouse, bugs.size()));
+        inTask.set(false);
     }
 
     @Override
@@ -222,8 +176,8 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
         if (requestCode == GREENHOUSE_ACTIVITY) {
             if (resultCode == RESULT_OK) {
                 try {
-                    JsonBug.getGreenhouses().forEach((greenhouse, bugs) -> ((GreenhousesAdapter)lv_greenhouses.getAdapter()).updateGreenhouseBugs(greenhouse.Id, bugs.size()));
-                    JsonBug.setLastUpdate(new Date(), inTask);
+                    Json.JsonBugs.getGreenhouses().forEach((greenhouse, bugs) -> ((GreenhousesAdapter)lv_greenhouses.getAdapter()).updateGreenhouseBugs(greenhouse.getId(), bugs.size()));
+                    Json.JsonFarm.setLastUpdate(new Date());
                 } catch (Exception ignored) {
                 }
             }

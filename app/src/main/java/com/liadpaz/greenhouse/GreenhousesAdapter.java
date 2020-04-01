@@ -59,10 +59,10 @@ class GreenhousesAdapter extends BaseAdapter {
 
         Greenhouse greenhouse = greenhouses.get(position);
 
-        binding.tvGreenhouseId.setText(greenhouse.Id);
-        binding.tvGreenhouseWidth.setText(String.valueOf(greenhouse.Width));
-        binding.tvGreenhouseHeight.setText(String.valueOf(greenhouse.Height));
-        Integer numBugs = bugs.get(greenhouses.get(position).Id);
+        binding.tvGreenhouseId.setText(greenhouse.getId());
+        binding.tvGreenhouseWidth.setText(String.valueOf(greenhouse.getWidth()));
+        binding.tvGreenhouseHeight.setText(String.valueOf(greenhouse.getHeight()));
+        Integer numBugs = bugs.get(greenhouses.get(position).getId());
         binding.tvGreenhouseBugs.setText(numBugs != null ? numBugs.toString() : "0");
 
         return convertView;
@@ -70,15 +70,19 @@ class GreenhousesAdapter extends BaseAdapter {
 
     void addItem(Greenhouse greenhouse, int bugs) {
         greenhouses.add(greenhouse);
-        this.bugs.put(greenhouse.Id, bugs);
-        Collections.sort(greenhouses, (greenhouse1, greenhouse2) -> greenhouse1.Id.compareTo(greenhouse2.Id));
+        this.bugs.put(greenhouse.getId(), bugs);
+        Collections.sort(greenhouses, (greenhouse1, greenhouse2) -> greenhouse1.getId().compareTo(greenhouse2.getId()));
         notifyDataSetChanged();
     }
 
     void clear() {
-        bugs.clear();
-        greenhouses.clear();
-        notifyDataSetChanged();
+        try {
+            bugs.clear();
+            greenhouses.clear();
+        } catch (Exception ignored) {
+        } finally {
+            notifyDataSetChanged();
+        }
     }
 
     void updateGreenhouseBugs(String greenhouse, int count) {

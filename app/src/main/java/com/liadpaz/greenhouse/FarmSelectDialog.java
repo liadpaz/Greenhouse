@@ -6,7 +6,8 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
+import com.liadpaz.greenhouse.databinding.DialogFarmSelectBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,18 +15,19 @@ import java.util.HashMap;
 
 class FarmSelectDialog extends Dialog {
 
+    private static final String TAG = "FARM_SELECT_DIALOG";
+
     FarmSelectDialog(Activity activity, @NotNull HashMap<String, String> farms) {
         super(activity);
-        setContentView(R.layout.dialog_farm_select);
+        DialogFarmSelectBinding binding = DialogFarmSelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        ((Spinner)findViewById(R.id.spinner_farms)).setAdapter(new ArrayAdapter<>(activity, R.layout.support_simple_spinner_dropdown_item, farms.keySet().toArray()));
-        ((Spinner)findViewById(R.id.spinner_farms)).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @SuppressWarnings("RedundantCast")
+        binding.spinnerFarms.setAdapter(new ArrayAdapter<>(activity, R.layout.support_simple_spinner_dropdown_item, farms.keySet().toArray()));
+        binding.spinnerFarms.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != 0) {
-                    // TODO: check if farm is necessary to the greenhouse select activity
-                    activity.startActivity(new Intent(activity, GreenhouseSelectActivity.class).putExtra("Farm", farms.get((String)parent.getAdapter().getItem(position))));
+                    activity.startActivity(new Intent(activity, GreenhouseSelectActivity.class).putExtra(Constants.GreenhouseSelectExtra.FARM, farms.get(parent.getAdapter().getItem(position).toString())));
                     dismiss();
                 }
             }
