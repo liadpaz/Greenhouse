@@ -3,7 +3,6 @@ package com.liadpaz.greenhouse;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -171,7 +170,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, GreenhouseSelectActivity.class).putExtra(Constants.GreenhouseSelectExtra.FARM, userAdmins.get(0).getId()));
                     } else if (userAdmins != null) {
                         userAdmins.forEach(admin -> farms.put(admin.get(Constants.FirebaseConstants.NAME).toString(), admin.getId()));
-                        runOnUiThread(new FarmSelectDialog(MainActivity.this, farms)::show);
+                        if (!MainActivity.this.isFinishing()) {
+                            runOnUiThread(new FarmSelectDialog(MainActivity.this, farms)::show);
+                        }
                     }
                 }
             }

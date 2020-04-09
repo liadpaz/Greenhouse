@@ -143,17 +143,15 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
      */
     @SuppressWarnings("ConstantConditions")
     private void downloadBugs() {
-        ((GreenhousesAdapter)lv_greenhouses.getAdapter()).clear();
         inTask.set(true);
+        ((GreenhousesAdapter)lv_greenhouses.getAdapter()).clear();
         Utilities.getGreenhousesRef().collection(FirebaseConstants.GREENHOUSES).get().addOnSuccessListener(documents -> documents.getDocuments().forEach(greenhouse -> {
             Greenhouse currentGreenhouse = new Greenhouse(greenhouse.getId(), greenhouse.get(FirebaseConstants.WIDTH, Integer.class), greenhouse.get(FirebaseConstants.HEIGHT, Integer.class));
             ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(currentGreenhouse, greenhouse.get(FirebaseConstants.BUG_COUNT, Integer.class));
             Utilities.getBugsRef().child(currentGreenhouse.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    inTask.set(true);
                     Json.JsonBugs.setBugs(currentGreenhouse, dataSnapshot.getValue(new GenericTypeIndicator<ArrayList<Bug>>() {}));
-                    inTask.set(false);
                 }
 
                 @Override
@@ -167,8 +165,8 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
      * This function is used to load bugs data from local file (bugs in Shared Preferences)
      */
     private void useLocalBugs() {
+        ((GreenhousesAdapter)lv_greenhouses.getAdapter()).clear();
         Json.JsonBugs.getGreenhouses().forEach((greenhouse, bugs) -> ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(greenhouse, bugs.size()));
-        inTask.set(false);
     }
 
     @Override
