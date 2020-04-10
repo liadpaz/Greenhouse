@@ -18,6 +18,7 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.liadpaz.greenhouse.databinding.ActivityGreenhouseSelectBinding;
 
 import java.util.ArrayList;
@@ -145,19 +146,27 @@ public class GreenhouseSelectActivity extends AppCompatActivity {
     private void downloadBugs() {
         inTask.set(true);
         ((GreenhousesAdapter)lv_greenhouses.getAdapter()).clear();
-        Utilities.getGreenhousesRef().collection(FirebaseConstants.GREENHOUSES).get().addOnSuccessListener(documents -> documents.getDocuments().forEach(greenhouse -> {
-            Greenhouse currentGreenhouse = new Greenhouse(greenhouse.getId(), greenhouse.get(FirebaseConstants.WIDTH, Integer.class), greenhouse.get(FirebaseConstants.HEIGHT, Integer.class));
-            ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(currentGreenhouse, greenhouse.get(FirebaseConstants.BUG_COUNT, Integer.class));
-            Utilities.getBugsRef().child(currentGreenhouse.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Json.JsonBugs.setBugs(currentGreenhouse, dataSnapshot.getValue(new GenericTypeIndicator<ArrayList<Bug>>() {}));
-                }
+        Utilities.getGreenhousesRef().collection(FirebaseConstants.GREENHOUSES).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot documents = task.getResult();
+                documents.getDocuments().forEach(greenhouse -> {
+                    Greenhouse currentGreenhouse = new Greenhouse(greenhouse.getId(), greenhouse.get(FirebaseConstants.WIDTH, Integer.class), greenhouse.get(FirebaseConstants.HEIGHT, Integer.class));
+                    ((GreenhousesAdapter)lv_greenhouses.getAdapter()).addItem(currentGreenhouse, greenhouse.get(FirebaseConstants.BUG_COUNT, Integer.class));
+                    Utilities.getBugsRef().child(currentGreenhouse.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Json.JsonBugs.setBugs(currentGreenhouse, dataSnapshot.getValue(new GenericTypeIndicator<ArrayList<Bug>>() {}));
+                            inTask.set(false);
+                        }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            });
-        }));
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    });
+                });
+            } else {
+                inTask.set(false);
+            }
+        });
         Json.JsonFarm.setLastUpdate(new Date());
     }
 
