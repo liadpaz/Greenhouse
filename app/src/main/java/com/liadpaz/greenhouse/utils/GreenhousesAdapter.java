@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.utils;
 
 import android.app.Activity;
 import android.view.View;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-class GreenhousesAdapter extends BaseAdapter {
+public class GreenhousesAdapter extends BaseAdapter {
 
     @SuppressWarnings("unused")
     private static final String TAG = "GREENHOUSE_ADAPTER";
@@ -22,7 +22,7 @@ class GreenhousesAdapter extends BaseAdapter {
     private ArrayList<Greenhouse> greenhouses;
     private HashMap<String, Integer> bugs;
 
-    GreenhousesAdapter(@NonNull Activity activity) {
+    public GreenhousesAdapter(@NonNull Activity activity) {
         super();
 
         this.activity = activity;
@@ -68,14 +68,14 @@ class GreenhousesAdapter extends BaseAdapter {
         return convertView;
     }
 
-    void addItem(Greenhouse greenhouse, int bugs) {
+    public void addItem(Greenhouse greenhouse, int bugs) {
         greenhouses.add(greenhouse);
         this.bugs.put(greenhouse.getId(), bugs);
         Collections.sort(greenhouses, (greenhouse1, greenhouse2) -> greenhouse1.getId().compareTo(greenhouse2.getId()));
         notifyDataSetChanged();
     }
 
-    void clear() {
+    public void clear() {
         try {
             bugs.clear();
             greenhouses.clear();
@@ -85,7 +85,7 @@ class GreenhousesAdapter extends BaseAdapter {
         }
     }
 
-    void updateGreenhouseBugs(String greenhouse, int count) {
+    public void updateGreenhouseBugs(String greenhouse, int count) {
         try {
             this.bugs.put(greenhouse, count);
             notifyDataSetChanged();

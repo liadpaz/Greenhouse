@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.activities;
 
 import android.annotation.SuppressLint;
 import android.content.res.TypedArray;
@@ -16,9 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.firebase.database.annotations.NotNull;
+import com.liadpaz.greenhouse.R;
 import com.liadpaz.greenhouse.databinding.ActivityGreenhouseBinding;
-
-import org.jetbrains.annotations.NotNull;
+import com.liadpaz.greenhouse.utils.Bug;
+import com.liadpaz.greenhouse.utils.Constants;
+import com.liadpaz.greenhouse.utils.Greenhouse;
+import com.liadpaz.greenhouse.utils.Json;
+import com.liadpaz.greenhouse.utils.Utilities;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -137,7 +142,7 @@ public class GreenhouseActivity extends AppCompatActivity {
      *
      * @param bug the bug to add
      */
-    private void addRedBug(@NotNull Bug bug) {
+    private void addRedBug(@NonNull Bug bug) {
         double x = ((double)viewWidth / greenhouse.getWidth() * bug.getX()) - 5;
         double y = viewHeight - ((double)viewHeight / greenhouse.getHeight() * bug.getY()) - 5;
 
@@ -152,7 +157,7 @@ public class GreenhouseActivity extends AppCompatActivity {
      *
      * @param bug the bug to add
      */
-    private void addBlackBug(@NotNull Bug bug) {
+    private void addBlackBug(@NonNull Bug bug) {
         double x = ((double)viewWidth / greenhouse.getWidth() * bug.getX()) - 5;
         double y = viewHeight - ((double)viewHeight / greenhouse.getHeight() * bug.getY()) - 5;
 
@@ -167,7 +172,7 @@ public class GreenhouseActivity extends AppCompatActivity {
      *
      * @param bug the bug to remove
      */
-    private void removeBugView(@NotNull Bug bug) {
+    private void removeBugView(@NonNull Bug bug) {
         layout_inner_greenhouse.removeView(layout_inner_greenhouse.getViewById(bug.getId()));
         tv_added_bugs.setText(String.format("%s: %s", getString(R.string.added_bugs), addedBugs.size()));
     }

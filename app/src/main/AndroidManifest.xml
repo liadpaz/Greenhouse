@@ -12,17 +12,17 @@
         android:theme="@style/AppTheme"
         tools:ignore="LockedOrientationActivity">
         <activity
-            android:name=".GreenhouseActivity"
+            android:name=".activities.GreenhouseActivity"
             android:launchMode="singleTask"
-            android:parentActivityName=".GreenhouseSelectActivity"
+            android:parentActivityName=".activities.GreenhouseSelectActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GreenhouseSelectActivity"
+            android:name=".activities.GreenhouseSelectActivity"
             android:launchMode="singleTask"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>

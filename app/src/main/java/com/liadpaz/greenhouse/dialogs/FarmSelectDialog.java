@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -7,17 +7,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.liadpaz.greenhouse.databinding.DialogFarmSelectBinding;
+import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
+import com.liadpaz.greenhouse.R;
+import com.liadpaz.greenhouse.activities.GreenhouseSelectActivity;
+import com.liadpaz.greenhouse.databinding.DialogFarmSelectBinding;
+import com.liadpaz.greenhouse.utils.Constants;
 
 import java.util.HashMap;
 
-class FarmSelectDialog extends Dialog {
+public class FarmSelectDialog extends Dialog {
 
     private static final String TAG = "FARM_SELECT_DIALOG";
 
-    FarmSelectDialog(Activity activity, @NotNull HashMap<String, String> farms) {
+    public FarmSelectDialog(@NonNull Activity activity, @NonNull HashMap<String, String> farms) {
         super(activity);
         DialogFarmSelectBinding binding = DialogFarmSelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

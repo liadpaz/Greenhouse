@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -8,11 +8,14 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.liadpaz.greenhouse.utils.Constants;
+import com.liadpaz.greenhouse.R;
+import com.liadpaz.greenhouse.activities.GreenhouseSelectActivity;
 import com.liadpaz.greenhouse.databinding.DialogFarmIdBinding;
 
-class FarmIdSelectDialog extends Dialog {
+public class FarmIdSelectDialog extends Dialog {
 
-    FarmIdSelectDialog(Activity activity) {
+    public FarmIdSelectDialog(Activity activity) {
         super(activity);
         DialogFarmIdBinding binding = DialogFarmIdBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

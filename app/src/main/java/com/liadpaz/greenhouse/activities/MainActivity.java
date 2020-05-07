@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.activities;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -18,7 +18,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.liadpaz.greenhouse.R;
 import com.liadpaz.greenhouse.databinding.ActivityMainBinding;
+import com.liadpaz.greenhouse.dialogs.FarmIdSelectDialog;
+import com.liadpaz.greenhouse.dialogs.FarmSelectDialog;
+import com.liadpaz.greenhouse.utils.Constants;
+import com.liadpaz.greenhouse.utils.Json;
+import com.liadpaz.greenhouse.utils.Utilities;
 
 import java.util.Collections;
 import java.util.Date;

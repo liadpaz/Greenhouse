@@ -1,4 +1,4 @@
-package com.liadpaz.greenhouse;
+package com.liadpaz.greenhouse.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,16 +19,22 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.liadpaz.greenhouse.R;
 import com.liadpaz.greenhouse.databinding.ActivityGreenhouseSelectBinding;
+import com.liadpaz.greenhouse.utils.Bug;
+import com.liadpaz.greenhouse.utils.Greenhouse;
+import com.liadpaz.greenhouse.utils.GreenhousesAdapter;
+import com.liadpaz.greenhouse.utils.Json;
+import com.liadpaz.greenhouse.utils.Utilities;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.liadpaz.greenhouse.Constants.FirebaseConstants;
-import static com.liadpaz.greenhouse.Constants.GreenhouseExtra;
-import static com.liadpaz.greenhouse.Constants.GreenhouseSelectExtra;
+import static com.liadpaz.greenhouse.utils.Constants.FirebaseConstants;
+import static com.liadpaz.greenhouse.utils.Constants.GreenhouseExtra;
+import static com.liadpaz.greenhouse.utils.Constants.GreenhouseSelectExtra;
 
 public class GreenhouseSelectActivity extends AppCompatActivity {
 
